@@ -1,0 +1,1 @@
+electron-packager . --platform=darwin --overwrite --electron=4.0.0 --icon=/Users/bernardahn/Documents/GitHub/youtubedownloader/squwbs.icns --asarUnpack=src/binary_build

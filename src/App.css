@@ -1,0 +1,77 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 600s linear;
+  }
+}
+.out-most{
+  background-color: rgb(110, 110, 110);
+  padding-left:7px;
+  padding-top:7px;
+  padding-right:7px;
+  padding-bottom:7px;
+  width:'100%';
+  height:calc(100vh - 14px);
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+}
+.outter{
+  background-color: rgb(90, 90, 90);
+  padding-left:7px;
+  padding-top:7px;
+  padding-right:7px;
+  padding-bottom:7px;
+  border-radius: 3px;
+  height:calc(100vh - 28px);
+  width:calc(100% - 14px);
+  align-items: center;
+  justify-content: center;
+  display:flex;
+  /* flex-direction: column; */
+}
+.App-header {
+  background-color: rgb(134,134,134);
+  padding-left:7px;
+  padding-top:7px;
+  padding-right:7px;
+  padding-bottom:7px;
+  height:calc(100vh - 42px);
+  width:calc(100% - 14px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: black;
+  
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.textBox::selection{
+  background-color:rgb(166, 166, 166);
+  color:rgb(245, 245, 245);
+
+}
+.textBox:focus{
+  outline: 0;
+}
