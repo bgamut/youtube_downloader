@@ -3,6 +3,7 @@ import {Text,View,Dimensions,TouchableOpacity} from 'react-native';
 import logo from './logo.svg';
 import './App.css';
 import stringifyObject from 'stringify-object'
+import { NONAME } from 'dns';
 const clearModule = require('clear-module');
 const withQuery = require('with-query').default;
 var child_process=require('child_process')
@@ -19,6 +20,8 @@ function App(props) {
   const [handshakeStatus,setHandshakeStatus]=useState(false)
   const [updates,setUpdates]=useState(null)
   const [currentIndex,setCurrentIndex]=useState(0)
+  const [greyOut,setGreyOut]=useState(false)
+  const [userSelect,setUserSelect]=useState('auto')
   // const [stop,setStop]=useState(false)
   var progressBarStyleOne={
     //flex:1,
@@ -44,7 +47,7 @@ function App(props) {
   var progressBarStyleTwo={
     //flex:1,
     height:26,
-    width:'calc(100% + 6px)',
+    width:'calc(100% + 12px)',
     //width:'calc(100% + 4 px)',
     backgroundColor:'rgb(234,179,65)',
     flex:1,
@@ -73,6 +76,7 @@ function App(props) {
       fontWeight:'700',
       textDecorationLine:'none',
       color:'rgb(90,90,90)',
+      userSelect:{userSelect},
       // textShadowColor: 'rgba(0, 0, 0, 0.85)',
       // textShadowOffset: {width: 0, height: 0},
       // textShadowRadius: 2,
@@ -143,7 +147,7 @@ var textBoxBorderTwo={
 };
   var textBoxStyle={
     height:40,
-    width:'calc(100% + 2px)',
+    width:'calc(100% + 6px)',
     fontSize: 10,
     fontWeight:'700',
     textDecorationLine:'none',
@@ -165,47 +169,62 @@ var textBoxBorderTwo={
 
   var percentage=0
   var barWidth=150
-  function setPercent(endIndex){
-    // if(go==true){
-      // if(currentIndex==0){
-      //   setStop(true)
-      // }
-      if(currentIndex+1<endIndex){
-        //currentIndex=currentIndex+1
-        setCurrentIndex(currentIndex+1)
-      }
-      else{
-        //currentIndex=endIndex
-        setCurrentIndex(endIndex)
-      }
-      //console.log(currentIndex)
-      //console.log(endIndex)
-      percentage = Math.ceil(currentIndex/(endIndex-1)*10000)/100
-      barWidth=Math.floor(394*currentIndex/endIndex)
+  // function setPercent(endIndex){
+  //   // if(go==true){
+  //     // if(currentIndex==0){
+  //     //   setStop(true)
+  //     // }
+  //     if(currentIndex+1<endIndex){
+  //       //currentIndex=currentIndex+1
+  //       setCurrentIndex(currentIndex+1)
+  //     }
+  //     else{
+  //       //currentIndex=endIndex
+  //       setCurrentIndex(endIndex)
+  //     }
+  //     //console.log(currentIndex)
+  //     //console.log(endIndex)
+  //     percentage = Math.ceil(currentIndex/(endIndex-1)*10000)/100
+  //     console.log(percentage)
+  //     barWidth=Math.floor(394*currentIndex/endIndex)
+  //     if (percentage!=0){
+  //       percentageText.current.innerHTML=percentage+' %'
+  //       if(currentIndex==endIndex-1){
+  //         percentageText.current.innerHTML="Ready"
+  //         var obj={}
+  //         cleanEmptyDirectories()
+  //         clearSlate("clean-slate",{}).then(function(){
+  //           console.log('slate clean message sent')
+  //         })
+  //         // const app = require('electron').remote.app
+  //         // app.exit(0)
+  //         //setStop(false)
+  //       }
+  //     }
+  //     else{
+  //       percentageText.current.innerHTML="Ready"
+  //       // setStop(false)
+  //     }
+  //     //bar.current.style.width=barWidth+'px'
+  //     //bar.current.style.width=percentage+'%'
+  //     bar.current.style.width='calc('+percentage+'% + 6px)'
+  //     //console.log(bar.current.style.width)
+  //   // }
+    
+  // }
+  function setPercent(percentage){
+      barWidth=Math.floor(394*percentage/100)
       if (percentage!=0){
         percentageText.current.innerHTML=percentage+' %'
-        if(currentIndex==endIndex-1){
-          percentageText.current.innerHTML="Ready"
-          var obj={}
-          cleanEmptyDirectories()
-          clearSlate("clean-slate",{}).then(function(){
-            console.log('slate clean message sent')
-          })
-          // const app = require('electron').remote.app
-          // app.exit(0)
-          //setStop(false)
-        }
+        bar.current.style.width='calc('+percentage+'% + 2px)'
       }
+    
       else{
-        percentageText.current.innerHTML="Ready"
+        percentageText.current.innerHTML="DOWNLOAD"
+        bar.current.style.width='calc(100% + 6 px)'
         // setStop(false)
       }
-      //bar.current.style.width=barWidth+'px'
-      //bar.current.style.width=percentage+'%'
-      bar.current.style.width='calc('+percentage+'% + 6px)'
-      //console.log(bar.current.style.width)
-    // }
-    
+        
   }
   const resetPortSettings=async()=>{
     function getPortnumberFromJSON(){
@@ -353,8 +372,7 @@ const postApi=(endPoint,obj,cb)=>{
               },15000)
           })
       }
-      else{
-        
+      else{ 
           clearModule('./sharedInfo.json')
           setTimeout(function(){
               console.log('else')
@@ -362,6 +380,47 @@ const postApi=(endPoint,obj,cb)=>{
           },15000)
       }
   }  
+  const observingState=()=>{
+          fetch(withQuery('http://127.0.0.1:'+portnumber+'/sharedinfo', {
+              mode:'cors',
+          }))
+          .then(result=>{
+              return result.json()
+          })
+          .then((json)=>{
+            
+            setTimeout(function(){
+              console.log("data length : "+json.data.length)
+              console.log("console : "+json.console)
+              console.log("error state : "+json.error)
+              console.log(json.percentage+"%")
+              setPercent(json.percentage)
+              if(json.percentage>=100){
+                percentageText.current.innerHTML=json.console
+                if(percentage>=100){
+                  percentageText.current.innerHTML="DOWNLOAD"
+                  setGreyOut(false)
+                  // var obj={}
+                  // cleanEmptyDirectories()
+                  clearSlate("clean-slate",{}).then(function(){
+                    console.log('slate clean message sent')
+                  })
+                }
+              }
+              observingState()
+            },3000)
+          })
+          .catch((err)=>{
+              console.error(err)
+              setTimeout(function(){
+                  console.log('err')
+                  observingState()
+              },15000)
+          })     
+      }
+
+
+  
 
   useEffect(()=>{
       console.log('started')
@@ -370,7 +429,7 @@ const postApi=(endPoint,obj,cb)=>{
       textBox.current.selectionEnd=29
      
       handshake()
-
+      observingState()
       //getPort()
       document.getElementById('business').onchange = function(e){ 
         //document.getElementById('business').oninput = function(e){
@@ -390,17 +449,17 @@ const postApi=(endPoint,obj,cb)=>{
   
             }
             //postApi("all-files",{data:filePaths})
-            async function start(){
-                await clearSlate("clean-slate",{})
-                var endGame=filePaths.length
-                for(var i =0; i<endGame; i++){
-                    var obj={file:filePaths[i],fraction:i/filePaths.length,currentGame:i,endGame:endGame}
-                    //console.log(obj)
-                    var json= await oneFileEndPoint("one-file",obj)
-                    //console.log(json)
-                }
-            }
-            start()
+            // async function start(){
+            //     await clearSlate("clean-slate",{})
+            //     var endGame=filePaths.length
+            //     for(var i =0; i<endGame; i++){
+            //         var obj={file:filePaths[i],fraction:i/filePaths.length,currentGame:i,endGame:endGame}
+            //         //console.log(obj)
+            //         var json= await oneFileEndPoint("one-file",obj)
+            //         //console.log(json)
+            //     }
+            // }
+            // start()
   
   
         }
@@ -417,14 +476,18 @@ const postApi=(endPoint,obj,cb)=>{
       console.log(portnumber)
   },[portnumber])
   useEffect(()=>{
+      console.log(updates)
       if(updates!=null && typeof(updates)!=='undefined'){
-
-          setPercent(parseInt(updates.data.endGame))
+          console.log(updates)
+          //setPercent(parseInt(updates.data.endGame))
+          setPercent(0)
       }
   },[updates])
   useEffect(()=>{
     // setStop(false)
-
+    console.log(currentIndex)
+    var obj={url:textBox.current.value,index:currentIndex}
+      //oneFileEndPoint("one-file",obj)
   },[currentIndex])
   // useEffect(()=>{
   //   // setStop(false)
@@ -436,14 +499,24 @@ const postApi=(endPoint,obj,cb)=>{
      // resetPortSettings()
       buttonRef.current.display='hide'
       console.log(textBox.current.value)
+      setGreyOut(true)
+      setUserSelect('none')
       // var downloadsFolder = require('downloads-folder')
       // console.log(downloadsFolder())
-      var obj={url:textBox.current.value}
-      console.log(obj)
+      var obj={url:textBox.current.value,index:0}
+      //console.log(obj)
       //console.log(obj)
       oneFileEndPoint("one-file",obj)
       //document.getElementById('business').click()
     // }
+  }
+  const keyPushed=(e)=>{
+    console.log(e.key)
+    if(e.key==='Enter'){
+      e.preventDefault();
+      pushed()
+      console.log('enter')
+    }
   }
   return (
     <div className="App">
@@ -452,7 +525,7 @@ const postApi=(endPoint,obj,cb)=>{
       <div className="App-header">
         <div style={{...textBoxBorderOne}}>
           <div style={{...textBoxBorderTwo}}>
-            <textarea className='textBox' ref={textBox} style={{...textBoxStyle}}>
+            <textarea className='textBox' ref={textBox} style={{...textBoxStyle}} disabled={greyOut} onKeyPress={keyPushed}>
             RAW YOUTUBE PLAYLIST URL HERE
             </textarea>
           </div>
@@ -470,6 +543,7 @@ const postApi=(endPoint,obj,cb)=>{
               
               <TouchableOpacity 
                 ref={buttonRef}
+                disabled={greyOut}
                 onPress={(e)=>{ 
                 // if(stop==false){
                   //restart({entry:'./expressServer/server.js'})

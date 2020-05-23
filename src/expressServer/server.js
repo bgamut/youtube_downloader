@@ -19,6 +19,7 @@
     'mp3',
     'flac'
   ]
+  var endGameNum=1000
   processingList=[]
   doProcess=true
   linearProcessingStarted=false
@@ -129,6 +130,10 @@
     console.log(fileList)
     res.send({data:fileList})
   })
+  app.get('/sharedinfo',cors(),function(req,res){
+    var sharedInfo=JSON.parse(fs.readFileSync(path.join(__dirname,"../sharedInfo.json")))
+    res.send(sharedInfo)
+  })
   app.post('/create-json',cors(),function(req,res){
     //var files=req.param('files')
     // res.header("Access-Control-Allow-Origin", "*");
@@ -141,40 +146,6 @@
     })
     res.send({message:'sampleDataLabels.json written at assets/sampleDataLabels.json'})
   
-    // var origJson=req.body
-    // var newJson={}
-    // var ws=[]
-    // var xs=[]
-    // var ys=[]
-    // var zs=[]
-    // origJson.data.forEach(function(data){
-    //     // var initW=null
-    //     var initX={}
-    //     var initY={'label':''}
-    //     var initZ=''
-        
-    //     for(var i=0; i<data.hashes.length;i++){
-    //         //console.log(data.hashes)
-            
-    //         initX[origJson.header[i]]=data.hashes[i]
-    //         if(i==Number(data.category)){
-    //             initY['label']=origJson.header[i]
-    //             initZ=origJson.header[i]
-    //         }
-    //     }
-    //     // ws.push(initW)
-    //     ws.push(data.hashes)
-    //     xs.push(initX)
-    //     ys.push(initY)
-    //     zs.push(initZ)
-    // })
-    // newJson.ws=ws
-    // newJson.xs=xs
-    // newJson.ys=ys
-    // newJson.zs=zs
-    // fs.writeFile(path.join(__dirname,"../assets/sampleDataLabels.json"),JSON.stringify(newJson,null,4),function(){
-    //     console.log('sampleDataLabels.json written at assets/sampleDataLabels.json')
-    //   })
       
     // res.send(newJson)
   })
@@ -286,274 +257,281 @@
    
   
   });
-  app.get('/clean-empty',cors(),function(req,res){
-    const isDirectory = filePath => fs.statSync(filePath).isDirectory();
-    const getDirectories = filePath =>
-        fs.readdirSync(filePath).map(name => path.join(filePath, name)).filter(isDirectory);
+  // app.get('/clean-empty',cors(),function(req,res){
+  //   const isDirectory = filePath => fs.statSync(filePath).isDirectory();
+  //   const getDirectories = filePath =>
+  //       fs.readdirSync(filePath).map(name => path.join(filePath, name)).filter(isDirectory);
   
-    const isFile = filePath => fs.statSync(filePath).isFile();  
-    const getFiles = filePath =>
-        fs.readdirSync(filePath).map(name => path.join(filePath, name)).filter(isFile);
+  //   const isFile = filePath => fs.statSync(filePath).isFile();  
+  //   const getFiles = filePath =>
+  //       fs.readdirSync(filePath).map(name => path.join(filePath, name)).filter(isFile);
   
-    const getFilesRecursively = (filePath) => {
-        let dirs = getDirectories(filePath);
-        let files = dirs
-            .map(dir => getFilesRecursively(dir)) // go through each directory
-            .reduce((a,b) => a.concat(b), []);    // map returns a 2d array (array of file arrays) so flatten
-        return files.concat(getFiles(filePath));
-    };
-    const isDir = filePath => fs.statSync(filePath).isDirectory(); 
-    const getDirs = filePath =>
-        fs.readdirSync(filePath).map(name => path.join(filePath, name)).filter(isDir);
+  //   const getFilesRecursively = (filePath) => {
+  //       let dirs = getDirectories(filePath);
+  //       let files = dirs
+  //           .map(dir => getFilesRecursively(dir)) // go through each directory
+  //           .reduce((a,b) => a.concat(b), []);    // map returns a 2d array (array of file arrays) so flatten
+  //       return files.concat(getFiles(filePath));
+  //   };
+  //   const isDir = filePath => fs.statSync(filePath).isDirectory(); 
+  //   const getDirs = filePath =>
+  //       fs.readdirSync(filePath).map(name => path.join(filePath, name)).filter(isDir);
   
-    const getDirsRecursively = (filePath) => {
-        let dirs = getDirs(filePath);
+  //   const getDirsRecursively = (filePath) => {
+  //       let dirs = getDirs(filePath);
         
-        let subDirs = dirs
-            .map(dir => getDirsRecursively(dir)) // go through each directory
-            .reduce((a,b) => a.concat(b), []);    // map returns a 2d array (array of file arrays) so flatten
-        return subDirs.concat(getDirs(filePath));
-    };
-    const desktopPath = require('path').join(require('os').homedir(), 'Desktop')
-    var fullPathDirectory=path.join(desktopPath,'mastered_files')
-    var allSubDirectories=getDirsRecursively(fullPathDirectory)
-    function cleanIt(){
-      const desktopPath = require('path').join(require('os').homedir(), 'Desktop')
-      var fullPathDirectory=path.join(desktopPath,'mastered_files')
-      var tempAudioDir=path.join(fullPathDirectory,'temp_audio')
-      var errorPathDirectory=path.join(fullPathDirectory,'errored_files')
-      var filesToMovefromTemp=fs.readdirSync(tempAudioDir)
-      var wavDirectory=path.join(fullPathDirectory,'wav')
-      var filesToMovefromWav=fs.readdirSync(wavDirectory)
+  //       let subDirs = dirs
+  //           .map(dir => getDirsRecursively(dir)) // go through each directory
+  //           .reduce((a,b) => a.concat(b), []);    // map returns a 2d array (array of file arrays) so flatten
+  //       return subDirs.concat(getDirs(filePath));
+  //   };
+  //   const desktopPath = require('path').join(require('os').homedir(), 'Desktop')
+  //   var fullPathDirectory=path.join(desktopPath,'mastered_files')
+  //   var allSubDirectories=getDirsRecursively(fullPathDirectory)
+  //   function cleanIt(){
+  //     const desktopPath = require('path').join(require('os').homedir(), 'Desktop')
+  //     var fullPathDirectory=path.join(desktopPath,'mastered_files')
+  //     var tempAudioDir=path.join(fullPathDirectory,'temp_audio')
+  //     var errorPathDirectory=path.join(fullPathDirectory,'errored_files')
+  //     var filesToMovefromTemp=fs.readdirSync(tempAudioDir)
+  //     var wavDirectory=path.join(fullPathDirectory,'wav')
+  //     var filesToMovefromWav=fs.readdirSync(wavDirectory)
       
-      filesToMovefromTemp.forEach((file,index)=>{ 
-        function filemovecb(){
-          console.log(file+' moved')
-        }
-        //move(path.join(tempAudioDir,file),path.join(errorPathDirectory,file),filemovecb)
-        //var newFileName=file.split('.').slice()[0]+'.wav'
-        var newFileName=file
-        var tempAudioDir=path.join(fullPathDirectory,'temp_audio')
-        var errorPathDirectory=path.join(fullPathDirectory,'errored_files')
-        var filesToMovefromTemp=fs.readdirSync(tempAudioDir)
-        var wavDirectory=path.join(fullPathDirectory,'wav')
-        function backupWarmWav(wavPath, newFilePath){
-          const warmer = require('../binary_build/spline/build/Release/addon');
-          try{
-            wavtPath=wavPath.replace(/[!?$%$#&(\')\`*(\s+)]/g,m=>'\\'+m)
-            var buffer = fs.readFileSync(wavPath);
-            const wavefile = require('wavefile')
-            var wavData = new wavefile.WaveFile(buffer)
-            wavData.toSampleRate(44100)
-            var samples = wavData.getSamples(false,Int32Array)
-            var squwbsResult =squwbs(samples[0],samples[1],44100);
-            const float32arrayLeft=new Float32Array(squwbsResult.left);
-            const float32arrayRight=new Float32Array(squwbsResult.right);
-            var int32arrayLeft = new Int32Array(float32arrayLeft.buffer);
-            var int32arrayRight = new Int32Array(float32arrayRight.buffer);
-            var arrayLeft = warmer.AcceptArrayBuffer(int32arrayLeft.buffer,44100);
-            var arrayRight = warmer.AcceptArrayBuffer(int32arrayRight.buffer,44100);
-            var finalFloat32arrayLeft=new Float32Array(arrayLeft)
-            var finalFloat32arrayRight=new Float32Array(arrayRight)
-            var combinedChannel=[finalFloat32arrayLeft,finalFloat32arrayRight]
-            var newWav=wav.encode(combinedChannel,{sampleRate:44100,float:true,})
-            function callbackTwo(){
-              try{
-                var newFileName=fileName.split('.').slice()[0]+'.wav'
-                fs.unlink(path.join(tempAudioDir,newFileName),function(){
-                  try{
-                    fs.unlinkSync(path.join(wavDirectory,newFileName))
-                    // linearProcessing()
-                  }
-                  catch(err){
-                    console.log(err)
-                    doProcess=true
-                    // linearProcessing()
-                  }
-                })
-              }
-              catch(err){
-                doProcess=true
-                console.log(err)
-                // linearProcessing()
-              }
-            }
-            fs.writeFile(newFilePath,newWav,function(){
-              //changeSoundExt(newFilePath,fullPathDirectory,'mp3',callbackTwo)
-              function changeSoundExt(filePath,targetDir,desiredExt,cb){
-                var fileName=path.basename(filePath)
-                var fileNameOnly=fileName.split('.')[0]
-                var newFileName=fileNameOnly+'.'+desiredExt
+  //     filesToMovefromTemp.forEach((file,index)=>{ 
+  //       function filemovecb(){
+  //         console.log(file+' moved')
+  //       }
+  //       //move(path.join(tempAudioDir,file),path.join(errorPathDirectory,file),filemovecb)
+  //       //var newFileName=file.split('.').slice()[0]+'.wav'
+  //       var newFileName=file
+  //       var tempAudioDir=path.join(fullPathDirectory,'temp_audio')
+  //       var errorPathDirectory=path.join(fullPathDirectory,'errored_files')
+  //       var filesToMovefromTemp=fs.readdirSync(tempAudioDir)
+  //       var wavDirectory=path.join(fullPathDirectory,'wav')
+  //       function backupWarmWav(wavPath, newFilePath){
+  //         const warmer = require('../binary_build/spline/build/Release/addon');
+  //         try{
+  //           wavtPath=wavPath.replace(/[!?$%$#&(\')\`*(\s+)]/g,m=>'\\'+m)
+  //           var buffer = fs.readFileSync(wavPath);
+  //           const wavefile = require('wavefile')
+  //           var wavData = new wavefile.WaveFile(buffer)
+  //           wavData.toSampleRate(44100)
+  //           var samples = wavData.getSamples(false,Int32Array)
+  //           var squwbsResult =squwbs(samples[0],samples[1],44100);
+  //           const float32arrayLeft=new Float32Array(squwbsResult.left);
+  //           const float32arrayRight=new Float32Array(squwbsResult.right);
+  //           var int32arrayLeft = new Int32Array(float32arrayLeft.buffer);
+  //           var int32arrayRight = new Int32Array(float32arrayRight.buffer);
+  //           var arrayLeft = warmer.AcceptArrayBuffer(int32arrayLeft.buffer,44100);
+  //           var arrayRight = warmer.AcceptArrayBuffer(int32arrayRight.buffer,44100);
+  //           var finalFloat32arrayLeft=new Float32Array(arrayLeft)
+  //           var finalFloat32arrayRight=new Float32Array(arrayRight)
+  //           var combinedChannel=[finalFloat32arrayLeft,finalFloat32arrayRight]
+  //           var newWav=wav.encode(combinedChannel,{sampleRate:44100,float:true,})
+  //           function callbackTwo(){
+  //             try{
+  //               var newFileName=fileName.split('.').slice()[0]+'.wav'
+  //               fs.unlink(path.join(tempAudioDir,newFileName),function(){
+  //                 try{
+  //                   fs.unlinkSync(path.join(wavDirectory,newFileName))
+  //                   // linearProcessing()
+  //                 }
+  //                 catch(err){
+  //                   console.log(err)
+  //                   doProcess=true
+  //                   // linearProcessing()
+  //                 }
+  //               })
+  //             }
+  //             catch(err){
+  //               doProcess=true
+  //               console.log(err)
+  //               // linearProcessing()
+  //             }
+  //           }
+  //           fs.writeFile(newFilePath,newWav,function(){
+  //             //changeSoundExt(newFilePath,fullPathDirectory,'mp3',callbackTwo)
+  //             function changeSoundExt(filePath,targetDir,desiredExt,cb){
+  //               var fileName=path.basename(filePath)
+  //               var fileNameOnly=fileName.split('.')[0]
+  //               var newFileName=fileNameOnly+'.'+desiredExt
       
-                var newOutputFilePath=path.join(targetDir,newFileName)
-                console.log(newOutputFilePath)
-                //var baseCommand=path.join(__dirname,'../binary_build/ffmpeg_convert/dist/convert')
-                //var command=baseCommand+' inputFilePath="'+filePath+'" outputFilePath="'+newOutputFilePath+'" errorDir="'+errorPathDirectory+'"'
-                var baseCommand=path.join(__dirname,'../bin/ffmpeg')
-                // var command=baseCommand+' -i '+filePath+' -y -hide_banner '+newOutputFilePath
-                // var terminalFilePath=filePath.replace(/(\s+)/g, '\\$1');
-                // var terminalNewOutputFilePath=newOutputFilePath.replace(/(\s+)/g, '\\$1');
-                var terminalFilePath=filePath.replace(/[!?$%$#&(\')\`*(\s+)]/g,m=>'\\'+m)
-                var terminalNewOutputFilePath=newOutputFilePath.replace(/[!?$%$#&(\')\`*(\s+)]/g,m=>'\\'+m)
-                var terminalNewOutputFilePath=terminalNewOutputFilePath.replace(/(&)/g, '\\$1');
-                if(desiredExt=='wav'){  
-                  var command=baseCommand+' -i '+terminalFilePath+' -y -hide_banner -ab 16 '+terminalNewOutputFilePath
-                }
-                else{
-                  var command=baseCommand+' -i '+terminalFilePath+' -y -hide_banner '+terminalNewOutputFilePath
-                }
+  //               var newOutputFilePath=path.join(targetDir,newFileName)
+  //               console.log(newOutputFilePath)
+  //               //var baseCommand=path.join(__dirname,'../binary_build/ffmpeg_convert/dist/convert')
+  //               //var command=baseCommand+' inputFilePath="'+filePath+'" outputFilePath="'+newOutputFilePath+'" errorDir="'+errorPathDirectory+'"'
+  //               var baseCommand=path.join(__dirname,'../bin/ffmpeg')
+  //               // var command=baseCommand+' -i '+filePath+' -y -hide_banner '+newOutputFilePath
+  //               // var terminalFilePath=filePath.replace(/(\s+)/g, '\\$1');
+  //               // var terminalNewOutputFilePath=newOutputFilePath.replace(/(\s+)/g, '\\$1');
+  //               var terminalFilePath=filePath.replace(/[!?$%$#&(\')\`*(\s+)]/g,m=>'\\'+m)
+  //               var terminalNewOutputFilePath=newOutputFilePath.replace(/[!?$%$#&(\')\`*(\s+)]/g,m=>'\\'+m)
+  //               var terminalNewOutputFilePath=terminalNewOutputFilePath.replace(/(&)/g, '\\$1');
+  //               if(desiredExt=='wav'){  
+  //                 var command=baseCommand+' -i '+terminalFilePath+' -y -hide_banner -ab 16 '+terminalNewOutputFilePath
+  //               }
+  //               else{
+  //                 var command=baseCommand+' -i '+terminalFilePath+' -y -hide_banner '+terminalNewOutputFilePath
+  //               }
                 
-                child_process.exec(command,function(err,stdout,stderr){
-                  console.log(stdout)
-                  if(err!==null){  
-                    function child_process_message(){
-                      console.log(err)
-                    }
-                    move(filePath,path.join(errorPathDirectory,fileName),child_process_message)
-                  }
-                  if(typeof(cb)!=='undefined'){
-                    try{
-                      cb()
-                    }
-                    catch(err){
-                      console.log(err)
-                      doProcess=true
-                      //linearProcessing()
-                    }
-                  }
-                }) 
-              }
-              const desktopPath = require('path').join(require('os').homedir(), 'Desktop')
-              var fullPathDirectory=path.join(desktopPath,'mastered_files')
-              var tempAudioDir=path.join(fullPathDirectory,'temp_audio')
-              var wavDirectory=path.join(fullPathDirectory,'wav')
-              var errorPathDirectory=path.join(fullPathDirectory,'errored_files')
-              var nextFullPathDirectory=path.join(fullPathDirectory,'mastered_fixed')
-              var miscDirectory=path.join(fullPathDirectory,'Misc')
-              var drumsDirectory=path.join(fullPathDirectory,'Drum')
-              var loopsDirectory=path.join(fullPathDirectory,'Loops')
-              var inDrumsDir=['Clap','Cymbal','Open Hat','Closed Hat','Kick','Percussion','Shaker','Snare','Tom']
-              var inOtherDir=['Loops','Chords','One Shots','Vocals']
-              var inOtherDirSingular=['Loop','Chord','One Shot','Vocal']
-              var oneshotsDirectory=path.join(fullPathDirectory,'One Shots')
-              var chordsDirectory=path.join(fullPathDirectory,'Chords')
-              var vocalsDirectory=path.join(fullPathDirectory,'Vocals')
-              var classification=predict(file).classification
-              function getFinalPathDir(classification){
-                const desktopPath = require('path').join(require('os').homedir(), 'Desktop')
-                var fullPathDirectory=path.join(desktopPath,'mastered_files')
-                var finalFullPathDirectory= path.join(fullPathDirectory,'Misc')
-                inDrumsDir.forEach((subDirName)=>{
-                  if(classification==subDirName.toLowerCase()){
-                    finalFullPathDirectory=path.join(drumsDirectory,subDirName)
-                  }
-                })
-                inOtherDirSingular.forEach((classCheck,index)=>{
-                  if(classification==classCheck.toLowerCase()){
-                    finalFullPathDirectory=path.join(fullPathDirectory,inOtherDir[index])
-                  }
-                })
+  //               child_process.exec(command,function(err,stdout,stderr){
+  //                 console.log(stdout)
+  //                 if(err!==null){  
+  //                   function child_process_message(){
+  //                     console.log(err)
+  //                   }
+  //                   move(filePath,path.join(errorPathDirectory,fileName),child_process_message)
+  //                 }
+  //                 if(typeof(cb)!=='undefined'){
+  //                   try{
+  //                     cb()
+  //                   }
+  //                   catch(err){
+  //                     console.log(err)
+  //                     doProcess=true
+  //                     //linearProcessing()
+  //                   }
+  //                 }
+  //               }) 
+  //             }
+  //             const desktopPath = require('path').join(require('os').homedir(), 'Desktop')
+  //             var fullPathDirectory=path.join(desktopPath,'mastered_files')
+  //             var tempAudioDir=path.join(fullPathDirectory,'temp_audio')
+  //             var wavDirectory=path.join(fullPathDirectory,'wav')
+  //             var errorPathDirectory=path.join(fullPathDirectory,'errored_files')
+  //             var nextFullPathDirectory=path.join(fullPathDirectory,'mastered_fixed')
+  //             var miscDirectory=path.join(fullPathDirectory,'Misc')
+  //             var drumsDirectory=path.join(fullPathDirectory,'Drum')
+  //             var loopsDirectory=path.join(fullPathDirectory,'Loops')
+  //             var inDrumsDir=['Clap','Cymbal','Open Hat','Closed Hat','Kick','Percussion','Shaker','Snare','Tom']
+  //             var inOtherDir=['Loops','Chords','One Shots','Vocals']
+  //             var inOtherDirSingular=['Loop','Chord','One Shot','Vocal']
+  //             var oneshotsDirectory=path.join(fullPathDirectory,'One Shots')
+  //             var chordsDirectory=path.join(fullPathDirectory,'Chords')
+  //             var vocalsDirectory=path.join(fullPathDirectory,'Vocals')
+  //             var classification=predict(file).classification
+  //             function getFinalPathDir(classification){
+  //               const desktopPath = require('path').join(require('os').homedir(), 'Desktop')
+  //               var fullPathDirectory=path.join(desktopPath,'mastered_files')
+  //               var finalFullPathDirectory= path.join(fullPathDirectory,'Misc')
+  //               inDrumsDir.forEach((subDirName)=>{
+  //                 if(classification==subDirName.toLowerCase()){
+  //                   finalFullPathDirectory=path.join(drumsDirectory,subDirName)
+  //                 }
+  //               })
+  //               inOtherDirSingular.forEach((classCheck,index)=>{
+  //                 if(classification==classCheck.toLowerCase()){
+  //                   finalFullPathDirectory=path.join(fullPathDirectory,inOtherDir[index])
+  //                 }
+  //               })
                 
   
-                return finalFullPathDirectory
-              }
-              var classification=predict(newFilePath).classification
-              var finalFullPathDirectory=getFinalPathDir(classification)
-              changeSoundExt(newFilePath,finalFullPathDirectory,'mp3',callbackTwo)
-            })
-          }
-          catch(err){
-            var originalPath=wavPath
-            var erroredFileName=path.basename(wavPath)
-            var errorPath=path.join(errorPathDirectory,erroredFileName)
-            var errorCallback= function(){
-              console.log('file error : moving to '+errorPath)
-            }
-            move(originalPath, errorPath, errorCallback)
-            console.log(err)
-            doProcess=true
-            // linearProcessing()
-          }
+  //               return finalFullPathDirectory
+  //             }
+  //             var classification=predict(newFilePath).classification
+  //             var finalFullPathDirectory=getFinalPathDir(classification)
+  //             changeSoundExt(newFilePath,finalFullPathDirectory,'mp3',callbackTwo)
+  //           })
+  //         }
+  //         catch(err){
+  //           var originalPath=wavPath
+  //           var erroredFileName=path.basename(wavPath)
+  //           var errorPath=path.join(errorPathDirectory,erroredFileName)
+  //           var errorCallback= function(){
+  //             console.log('file error : moving to '+errorPath)
+  //           }
+  //           move(originalPath, errorPath, errorCallback)
+  //           console.log(err)
+  //           doProcess=true
+  //           // linearProcessing()
+  //         }
           
-        }
+  //       }
         
-        //backupWarmWav(path.join(tempAudioDir,newFileName),path.join(wavDirectory,newFileName))
-        function filemovecb(){
-          console.log(file+' moved to errorPathDirectory')
-          fs.unlinkSync(path.join(tempAudioDir,file))
-        }
-        move(path.join(tempAudioDir,newFileName),path.join(errorPathDirectory,newFileName),filemovecb)
+  //       //backupWarmWav(path.join(tempAudioDir,newFileName),path.join(wavDirectory,newFileName))
+  //       function filemovecb(){
+  //         console.log(file+' moved to errorPathDirectory')
+  //         fs.unlinkSync(path.join(tempAudioDir,file))
+  //       }
+  //       move(path.join(tempAudioDir,newFileName),path.join(errorPathDirectory,newFileName),filemovecb)
         
-      })
-      filesToMovefromWav.forEach((file,index)=>{
+  //     })
+  //     filesToMovefromWav.forEach((file,index)=>{
         
-        const desktopPath = require('path').join(require('os').homedir(), 'Desktop')
-        var fullPathDirectory=path.join(desktopPath,'mastered_files')
-        var tempAudioDir=path.join(fullPathDirectory,'temp_audio')
-        var wavDirectory=path.join(fullPathDirectory,'wav')
-        var errorPathDirectory=path.join(fullPathDirectory,'errored_files')
-        var nextFullPathDirectory=path.join(fullPathDirectory,'mastered_fixed')
-        var miscDirectory=path.join(fullPathDirectory,'Misc')
-        var drumsDirectory=path.join(fullPathDirectory,'Drum')
-        var loopsDirectory=path.join(fullPathDirectory,'Loops')
-        var inDrumsDir=['Clap','Cymbal','Open Hat','Closed Hat','Kick','Percussion','Shaker','Snare','Tom']
-        var inOtherDir=['Loops','Chords','One Shots','Vocals']
-        var inOtherDirSingular=['Loop','Chord','One Shot','Vocal']
-        var oneshotsDirectory=path.join(fullPathDirectory,'One Shots')
-        var chordsDirectory=path.join(fullPathDirectory,'Chords')
-        var vocalsDirectory=path.join(fullPathDirectory,'Vocals')
-        var classification=predict(file).classification
-        function getFinalPathDir(classification){
-          const desktopPath = require('path').join(require('os').homedir(), 'Desktop')
-          var fullPathDirectory=path.join(desktopPath,'mastered_files')
-          var finalFullPathDirectory= path.join(fullPathDirectory,'Misc')
-          inDrumsDir.forEach((subDirName)=>{
-            if(classification==subDirName.toLowerCase()){
-              finalFullPathDirectory=path.join(drumsDirectory,subDirName)
-            }
-          })
-          inOtherDirSingular.forEach((classCheck,index)=>{
-            if(classification==classCheck.toLowerCase()){
-              finalFullPathDirectory=path.join(fullPathDirectory,inOtherDir[index])
-            }
-          })
+  //       const desktopPath = require('path').join(require('os').homedir(), 'Desktop')
+  //       var fullPathDirectory=path.join(desktopPath,'mastered_files')
+  //       var tempAudioDir=path.join(fullPathDirectory,'temp_audio')
+  //       var wavDirectory=path.join(fullPathDirectory,'wav')
+  //       var errorPathDirectory=path.join(fullPathDirectory,'errored_files')
+  //       var nextFullPathDirectory=path.join(fullPathDirectory,'mastered_fixed')
+  //       var miscDirectory=path.join(fullPathDirectory,'Misc')
+  //       var drumsDirectory=path.join(fullPathDirectory,'Drum')
+  //       var loopsDirectory=path.join(fullPathDirectory,'Loops')
+  //       var inDrumsDir=['Clap','Cymbal','Open Hat','Closed Hat','Kick','Percussion','Shaker','Snare','Tom']
+  //       var inOtherDir=['Loops','Chords','One Shots','Vocals']
+  //       var inOtherDirSingular=['Loop','Chord','One Shot','Vocal']
+  //       var oneshotsDirectory=path.join(fullPathDirectory,'One Shots')
+  //       var chordsDirectory=path.join(fullPathDirectory,'Chords')
+  //       var vocalsDirectory=path.join(fullPathDirectory,'Vocals')
+  //       var classification=predict(file).classification
+  //       function getFinalPathDir(classification){
+  //         const desktopPath = require('path').join(require('os').homedir(), 'Desktop')
+  //         var fullPathDirectory=path.join(desktopPath,'mastered_files')
+  //         var finalFullPathDirectory= path.join(fullPathDirectory,'Misc')
+  //         inDrumsDir.forEach((subDirName)=>{
+  //           if(classification==subDirName.toLowerCase()){
+  //             finalFullPathDirectory=path.join(drumsDirectory,subDirName)
+  //           }
+  //         })
+  //         inOtherDirSingular.forEach((classCheck,index)=>{
+  //           if(classification==classCheck.toLowerCase()){
+  //             finalFullPathDirectory=path.join(fullPathDirectory,inOtherDir[index])
+  //           }
+  //         })
           
   
-          return finalFullPathDirectory
-        }
-        var classification=predict(file).classification
-        var finalFullPathDirectory=getFinalPathDir(classification)
-        function filemovecb(){
-          console.log(file+' moved to '+classification)
-          fs.unlinkSync(path.join(wavDirectory,file))
-        }
-        move(path.join(wavDirectory,file),path.join(finalFullPathDirectory,file),filemovecb)
+  //         return finalFullPathDirectory
+  //       }
+  //       var classification=predict(file).classification
+  //       var finalFullPathDirectory=getFinalPathDir(classification)
+  //       function filemovecb(){
+  //         console.log(file+' moved to '+classification)
+  //         fs.unlinkSync(path.join(wavDirectory,file))
+  //       }
+  //       move(path.join(wavDirectory,file),path.join(finalFullPathDirectory,file),filemovecb)
         
-      })
-      //var filesToMovefromError=fs.readdirSync(errorPathDirectory)
-      // filesToMovefromError.forEach((file,index)=>{
-      //   function filemovecb(){
-      //     console.log(file+' moved')
-      //   }
-      //   move(path.join(tempAudioDir,file),path.join(errorPathDirectory,file),filemovecb)
-      // })
-      allSubDirectories.forEach((dir,index)=>{
-        fs.readdir(dir,(err,files)=>{
-          if(files.length==0){
-            fs.rmdirSync(dir)
-          }
-        })
-      })
-    }
-    setTimeout(function(){
-      console.log('cleanIt function executed.')
-      cleanIt()
-    },8000)
+  //     })
+  //     //var filesToMovefromError=fs.readdirSync(errorPathDirectory)
+  //     // filesToMovefromError.forEach((file,index)=>{
+  //     //   function filemovecb(){
+  //     //     console.log(file+' moved')
+  //     //   }
+  //     //   move(path.join(tempAudioDir,file),path.join(errorPathDirectory,file),filemovecb)
+  //     // })
+  //     allSubDirectories.forEach((dir,index)=>{
+  //       fs.readdir(dir,(err,files)=>{
+  //         if(files.length==0){
+  //           fs.rmdirSync(dir)
+  //         }
+  //       })
+  //     })
+  //   }
+  //   setTimeout(function(){
+  //     console.log('cleanIt function executed.')
+  //     cleanIt()
+  //   },8000)
     
-  })
+  // })
   app.get('/clean-slate',cors(),function(req,res){
-    processingList=[]
-    res.send({data:'cleaned the slate!'})
+    var sharedInfo=JSON.parse(fs.readFileSync(path.join(__dirname,"../sharedInfo.json")))
+    sharedInfo.data=[]
+    sharedInfo.console='download'
+    sharedInfo.error=false
+    sharedInfo.percentage=100
+    fs.writeFile(path.join(__dirname,"../sharedInfo.json"),JSON.stringify(sharedInfo,null,4),function(){
+      console.log(i+1+'/'+list.length+' '+file_name)
+      res.send({data:'cleaned the slate!'})
+    })
   })
   app.get('/one-file',cors(),function(req,res){
     var fs= require('fs')
@@ -569,7 +547,6 @@
     var fullObjList=[]
     function trim_silence(list,i){
         var commandOptions=['-i', 'temp.mp3','-af','silenceremove=1:0:-50dB', 'output.mp3']
-        
         temp_file=list[i].uuid
         //temp_file_path=path.relative(__dirname, path.join(downloadsFolder(),temp_file))
         temp_file_path=path.join(downloadsFolder(),temp_file)
@@ -583,88 +560,251 @@
         spawnSync('ffmpeg',commandOptions)
         //fs.unlinkSync(temp_file)
         fs.unlinkSync(temp_file_path)
-        console.log(i+1+'/'+list.length+' '+file_name)
+        var sharedInfo=JSON.parse(fs.readFileSync(path.join(__dirname,"../sharedInfo.json")))
+        sharedInfo.console=i+1+'/'+list.length+' '+file_name
+        fs.writeFile(path.join(__dirname,"../sharedInfo.json"),JSON.stringify(sharedInfo,null,4),function(){
+          console.log(i+1+'/'+list.length+' '+file_name)
+        })
         if(i<list.length-1){
             trim_silence(list,i+1)
         }
+        else{
+          var sharedInfo=JSON.parse(fs.readFileSync(path.join(__dirname,"../sharedInfo.json")))
+          sharedInfo.finished=true
+          fs.writeFile(path.join(__dirname,"../sharedInfo.json"),JSON.stringify(sharedInfo,null,4),function(){
+            console.log('finished')
+          })
+        }
+    }
+    function trim_silence_one(list,i){
+      var commandOptions=['-i', 'temp.mp3','-af','silenceremove=1:0:-50dB', 'output.mp3']
+      // temp_file=list[i].uuid
+      temp_file=list[i].title
+      temp_file_path=path.join(downloadsFolder(),temp_file)
+      commandOptions[1]=temp_file_path
+      file_name=list[i].title+'.mp3'
+      //temp_file+'.mp3'
+      file_name_path=path.join(downloadsFolder(),file_name)
+      commandOptions[4]=file_name_path
+      spawnSync('ffmpeg',commandOptions)
+      // setTimeout(function(){
+        fs.unlinkSync(temp_file_path)
+      // },5000)
+      var sharedInfo=JSON.parse(fs.readFileSync(path.join(__dirname,"../sharedInfo.json")))
+      sharedInfo.console=i+1+'/'+list.length+' '+file_name
+      fs.writeFile(path.join(__dirname,"../sharedInfo.json"),JSON.stringify(sharedInfo,null,4),function(){
+        console.log(i+1+'/'+list.length+' '+file_name)
+      })
     }
     function download_mp3(list,i){
+      try{
+        //console.log(list)
         var video=youtubedl(list[i].url, ['-x', '--audio-format', 'mp3'])
         var file_name=''
-        var temp_file=UUID.generate()+'.mp3'
+        // var temp_file=UUID.generate()+'.mp3'
+        // var temp_file=list[i].uuid
+        var temp_file=list[i].title
         var commandString=''
         var commandOptions=['-i', 'temp.mp3','-af','silenceremove=1:0:-50dB', 'output.mp3']
         video.on('info', function(info) {
             // console.log('Download started')
             var file_name=path.parse(info._filename).name+'.mp3'
-            console.log(i+1+'/'+list.length+' '+ file_name +" -> "+ temp_file)
+            console.log(i+1+'/'+endGameNum+' '+ file_name +" -> "+ temp_file)
+            
             //console.log('size: ' + info.size)
             // commandString='ffmpeg -i' +temp_file+' -af silenceremove=1:0:-50dB  '+file_name
             // commandOptions[4]=file_name
             //video.pipe(fs.createWriteStream(file_name))
-            fullObjList[i].uuid=temp_file
+            //fullObjList[i].uuid=temp_file
             //temp_file_path=path.relative(__dirname, path.join(downloadsFolder(),temp_file))
             temp_file_path=path.join(downloadsFolder(),temp_file)
             //video.pipe(fs.createWriteStream(temp_file))
             video.pipe(fs.createWriteStream(temp_file_path))
+            var sharedInfo=JSON.parse(fs.readFileSync(path.join(__dirname,"../sharedInfo.json")))
+            var percentage=Math.ceil(i/(endGameNum-1)*10000)/100
+            sharedInfo.percentage=percentage
+            fs.writeFile(path.join(__dirname,"../sharedInfo.json"),JSON.stringify(sharedInfo,null,4),function(){
+              console.log(percentage+'%')
+            })
         })
         //video.pipe(fs.createWriteStream(temp_file))
         
         video.on('complete', function complete(info) {
             console.log('filename: ' + file_name + ' already downloaded.')
         })
+        video.on('error',function error(err){
+          console.log(file_name+ " fuck'n failed bruh")
+          if(i<endGameNum-1){
+            // download_mp3(list,i+1)
+            res.send({data:{
+                endGame:endGameNum
+              }
+            })
+          }
+          else{
+              
+              var sharedInfo=JSON.parse(fs.readFileSync(path.join(__dirname,"../sharedInfo.json")))
+              sharedInfo.console="trimming silence and naming them correctly"
+              fs.writeFile(path.join(__dirname,"../sharedInfo.json"),JSON.stringify(sharedInfo,null,4),function(){
+                console.log("trimming silence")
+              })
+              //console.log(fullObjList)
+              //trim_silence(fullObjList,0)
+              trim_silence(list,0)
+          }
+        })
         video.on('end', function() {
-            // console.log(commandOptions)
-            // spawnSync('ffmpeg',commandOptions)
-            // fs.unlinkSync(temp_file)
-            // console.log('finished downloading '+file_name)
-            if(i<list.length-1){
-                download_mp3(list,i+1)
+
+            endGameNum=list.length
+     
+            if(i<endGameNum-1){
+              download_mp3(list,i+1)
+              setTimeout(function(){
+                trim_silence_one(list,i)
+              },45000)
             }
             else{
-                console.log("I think we're done")
-                //console.log(fullObjList)
-                trim_silence(fullObjList,0)
+              console.log("I think we're done")
+              //fullObjList=list.slice()
+              //trim_silence(fullObjList,0)
             }
         })
+      }
+      catch(e){
+        console.log("this part needs to be ignored for most of the time")
+        // if(i<list.length-1){
+        //   download_mp3(list,i+1)
+        // }
+        // else{
+        //     console.log("I think we're done")
+        //     //console.log(fullObjList)
+        //     trim_silence(fullObjList,0)
+        // }
+      }
     }
     function run(raw_url){
-        var open = require('mac-open')
-        open(downloadsFolder(), { a: "Finder" }, function(error) {});
-    const config = {
-    GOOGLE_API_KEY:process.env.GOOGLE_API_KEY,
-    PLAYLIST_ITEM_KEY: ['publishedAt', 'title', 'description', 'videoId', 'videoUrl'], // option
-    }
+      var open = require('mac-open')
+      open(downloadsFolder(), { a: "Finder" }, function(error) {});
+      const config = {
+        GOOGLE_API_KEY:process.env.GOOGLE_API_KEY,
+        PLAYLIST_ITEM_KEY: ['publishedAt', 'title', 'description', 'videoId', 'videoUrl'], // option
+      }
+      const ps = new PlaylistSummary(config)
+      // const PLAY_LIST_ID = 'RD8uDDwDpisYI'
+    //   console.log("parser result : "+qs.parse(raw_url.list))
+    //   if(qs.parse(raw_url.list)==undefined){
+       
+    // }
 
-    const ps = new PlaylistSummary(config)
-    // const PLAY_LIST_ID = 'RD8uDDwDpisYI'
-    const PLAY_LIST_ID = qs.parse(raw_url).list
+    // else{
+      const PLAY_LIST_ID = qs.parse(raw_url).list
+      ps.getPlaylistItems(PLAY_LIST_ID)
+      .then((result) => {
+          //console.log(result.items)
+          for (var i =0; i<result.items.length;i++){
+              var tempObj={
+                  title:'',
+                  url:'',
+                  uuid:''
+              }
+              tempObj.title=result.items[i].title
+              tempObj.url=result.items[i].videoUrl
+              tempObj.uuid=UUID.generate()+'.mp3'
+              fullObjList.push(tempObj)
+              //fullList.push(result.items[i].videoUrl)
+          }
+          //console.log(fullList)
+          //download_mp3(fullList,0)
+          // fs.writeFile(path.join(__dirname,"../assets/playlist_items.json"),JSON.stringify(fullObjList,null,4),function(){
+          //   console.log('playlist_items.json written at assets/playlist_items.json')
+          // })
+          
+          var sharedInfo=JSON.parse(fs.readFileSync(path.join(__dirname,"../sharedInfo.json")))
+          processingList=fullObjList.slice()
+          sharedInfo.data=fullObjList.slice()
+          fs.writeFile(path.join(__dirname,"../sharedInfo.json"),JSON.stringify(sharedInfo,null,4),function(){
+            console.log('sharedInfo written at src/sharedInfo')
+          })
 
-    ps.getPlaylistItems(PLAY_LIST_ID)
-    .then((result) => {
-        console.log(result.items)
-        for (var i =0; i<result.items.length;i++){
-            var tempObj={
-                title:'',
-                url:'',
-                uuid:''
-            }
-            tempObj.title=result.items[i].title
-            tempObj.url=result.items[i].videoUrl
-            fullObjList.push(tempObj)
-            //fullList.push(result.items[i].videoUrl)
-        }
-        //console.log(fullList)
-        //download_mp3(fullList,0)
-        download_mp3(fullObjList,0)
-    })
-    .catch((error) => {
-        console.error(error)
-    })
+
+          //download_mp3(fullObjList,0)
+          download_mp3(processingList,0)
+          res.send({data:{
+             message:'download started'
+           }
+          })
+      })
+      .catch((error) => {
+          console.error('not a youtube playlist')
+          console.log(raw_url)
+          var video=youtubedl(raw_url, ['-x', '--audio-format', 'mp3'])
+          var file_name=''
+          //var temp_file=UUID.generate()+'mp3'
+
+          video.on('info', function(info) {
+              // console.log('Download started')
+              var file_name=path.parse(info._filename).name+'.mp3'
+              temp_file=path.parse(info._filename).name
+              temp_file_path=path.join(downloadsFolder(),temp_file)
+              //video.pipe(fs.createWriteStream(temp_file))
+              video.pipe(fs.createWriteStream(temp_file_path))
+              var sharedInfo=JSON.parse(fs.readFileSync(path.join(__dirname,"../sharedInfo.json")))
+              var percentage=100
+              sharedInfo.percentage=percentage
+              fs.writeFile(path.join(__dirname,"../sharedInfo.json"),JSON.stringify(sharedInfo,null,4),function(){
+                console.log(percentage+'%')
+                var commandOptions=['-i', 'temp.mp3','-af','silenceremove=1:0:-50dB', 'output.mp3']
+                commandOptions[1]=temp_file_path
+                file_name_path=path.join(downloadsFolder(),file_name)
+                commandOptions[4]=file_name_path
+                setTimeout(function(){
+                  spawnSync('ffmpeg',commandOptions)
+                  fs.unlinkSync(temp_file_path)
+                  var sharedInfo=JSON.parse(fs.readFileSync(path.join(__dirname,"../sharedInfo.json")))
+                  sharedInfo.console=1+'/'+1+' '+file_name
+                  fs.writeFile(path.join(__dirname,"../sharedInfo.json"),JSON.stringify(sharedInfo,null,4),function(){
+                    console.log(1+'/'+1+' '+file_name)
+                  })
+                },15000)
+                
+              })
+              
+          })
+          //video.pipe(fs.createWriteStream(temp_file))
+          
+          video.on('complete', function complete(info) {
+              console.log('filename: ' + file_name + ' already downloaded.')
+          })
+          video.on('error',function error(err){
+            res.send({data:{
+              error:error.message
+            }})
+            //var sharedInfo=fs.readFileSync(path.join(__dirname,"../assets/sharedInfo.json"))
+            var sharedInfo=JSON.parse(fs.readFileSync(path.join(__dirname,"../sharedInfo.json")))
+            sharedInfo.error=true
+            sharedInfo.console=error.message
+            // fs.writeFile(path.join(__dirname,"../assets/sharedInfo.json"),JSON.stringify(sharedInfo,null,4),function(){
+            //   console.log('error message written at assets/sharedInfo.json')
+            // })
+            fs.writeFile(path.join(__dirname,"../sharedInfo.json"),JSON.stringify(sharedInfo,null,4),function(){
+              console.log('error message written at src/sharedInfo.json')
+            })
+        })
+          
+      })
+    // }
+  }
+    //console.log(req.query)
+    if(req.query.url!='RAW YOUTUBE PLAYLIST URL HERE'){
+      if(req.query.index==0){
+        run(req.query.url)
+      }
+      else{
+        //var fullObjList=fs.readFileSync(path.join(__dirname,"../assets/playlist_items.json"))
+        var fullObjList=JSON.parse(fs.readFileSync(path.join(__dirname,"../playlist_items.json"))).data
+        download_mp3(fullObjList,req.query.index)
+      }
     }
-    run(req.query.url)
-    console.log(req.query.url)
-    
   })
   //console.log(path.join(__dirname,'../../build'))
   console.log('server started in port number : '+String(portnumber))

@@ -47,6 +47,14 @@ function createWindow () {
     })  
 }
 findPort()
+var sharedInfo=JSON.parse(fs.readFileSync(path.join(__dirname,"/src/sharedInfo.json")))
+
+    sharedInfo.console='download'
+    sharedInfo.error=false
+    sharedInfo.percentage=100
+    fs.writeFile(path.join(__dirname,"/src/sharedInfo.json"),JSON.stringify(sharedInfo,null,4),function(){
+      console.log('check src/sharedInfo.json')
+    })
   // win.loadURL(
   //   isDev 
   //   ? "http://localhost:3000" 
@@ -76,10 +84,13 @@ findPort()
   })
   win.on('hide',()=>{
     // tray.setHighlightMode('never')
+    
+  })
+  win.on('will-quit',()=>{
+    
   })
   win.on('quit',()=>{
     tray.webContents.clearHistory()
   })
 }
-
 app.on('ready', createWindow)
