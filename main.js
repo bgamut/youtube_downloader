@@ -1,7 +1,12 @@
-const { app, BrowserWindow,Tray } = require('electron')
+const { app, BrowserWindow,Tray,dialog } = require('electron')
+
 const path = require('path')
 const fs=require('fs')
 const isDev=false
+// Disable error dialogs by overriding
+dialog.showErrorBox = function(title, content) {
+    console.log(`${title}\n${content}`);
+};
 
 function createWindow () {
   var portfinder = require('portfinder')
@@ -49,7 +54,7 @@ function createWindow () {
 findPort()
 var sharedInfo=JSON.parse(fs.readFileSync(path.join(__dirname,"/src/sharedInfo.json")))
 
-    sharedInfo.console='download'
+    sharedInfo.console='DOWNLOAD'
     sharedInfo.error=false
     sharedInfo.percentage=100
     fs.writeFile(path.join(__dirname,"/src/sharedInfo.json"),JSON.stringify(sharedInfo,null,4),function(){

@@ -578,8 +578,8 @@
     }
     function trim_silence_one(list,i){
       var commandOptions=['-i', 'temp.mp3','-af','silenceremove=1:0:-50dB', 'output.mp3']
-      // temp_file=list[i].uuid
-      temp_file=list[i].title
+      temp_file=list[i].uuid
+      //temp_file=list[i].title
       temp_file_path=path.join(downloadsFolder(),temp_file)
       commandOptions[1]=temp_file_path
       file_name=list[i].title+'.mp3'
@@ -602,8 +602,8 @@
         var video=youtubedl(list[i].url, ['-x', '--audio-format', 'mp3'])
         var file_name=''
         // var temp_file=UUID.generate()+'.mp3'
-        // var temp_file=list[i].uuid
-        var temp_file=list[i].title
+        var temp_file=list[i].uuid
+        //var temp_file=list[i].title
         var commandString=''
         var commandOptions=['-i', 'temp.mp3','-af','silenceremove=1:0:-50dB', 'output.mp3']
         video.on('info', function(info) {
@@ -633,24 +633,24 @@
             console.log('filename: ' + file_name + ' already downloaded.')
         })
         video.on('error',function error(err){
-          console.log(file_name+ " fuck'n failed bruh")
+          //console.log(file_name+ " fuck'n failed bruh")
           if(i<endGameNum-1){
-            // download_mp3(list,i+1)
-            res.send({data:{
-                endGame:endGameNum
-              }
-            })
+            download_mp3(list,i+1)
+            // res.send({data:{
+            //     endGame:endGameNum
+            //   }
+            // })
           }
           else{
               
-              var sharedInfo=JSON.parse(fs.readFileSync(path.join(__dirname,"../sharedInfo.json")))
-              sharedInfo.console="trimming silence and naming them correctly"
-              fs.writeFile(path.join(__dirname,"../sharedInfo.json"),JSON.stringify(sharedInfo,null,4),function(){
-                console.log("trimming silence")
-              })
+              // var sharedInfo=JSON.parse(fs.readFileSync(path.join(__dirname,"../sharedInfo.json")))
+              // sharedInfo.console="trimming silence and naming them correctly"
+              // fs.writeFile(path.join(__dirname,"../sharedInfo.json"),JSON.stringify(sharedInfo,null,4),function(){
+              //   console.log("trimming silence")
+              // })
               //console.log(fullObjList)
               //trim_silence(fullObjList,0)
-              trim_silence(list,0)
+              // trim_silence(list,0)
           }
         })
         video.on('end', function() {
@@ -661,13 +661,16 @@
               download_mp3(list,i+1)
               setTimeout(function(){
                 trim_silence_one(list,i)
-              },45000)
+              },15000)
             }
-            else{
-              console.log("I think we're done")
+            else if (i==endGameNum-1){
+                trim_silence_one(list,i)
+            }
+            // else{
+            //   console.log("I think we're done")
               //fullObjList=list.slice()
               //trim_silence(fullObjList,0)
-            }
+            // }
         })
       }
       catch(e){

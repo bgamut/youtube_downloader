@@ -216,10 +216,14 @@ var textBoxBorderTwo={
       barWidth=Math.floor(394*percentage/100)
       if (percentage!=0){
         percentageText.current.innerHTML=percentage+' %'
-        bar.current.style.width='calc('+percentage+'% + 2px)'
+        bar.current.style.width='calc('+percentage+'% + 6px)'
       }
     
       else{
+        if(isNaN(percentage)==true){
+          percentageText.current.innerHTML='0 %'
+          bar.current.style.width=2
+        }
         percentageText.current.innerHTML="DOWNLOAD"
         bar.current.style.width='calc(100% + 6 px)'
         // setStop(false)
@@ -408,7 +412,7 @@ const postApi=(endPoint,obj,cb)=>{
                 }
               }
               observingState()
-            },3000)
+            },1500)
           })
           .catch((err)=>{
               console.error(err)
@@ -525,7 +529,7 @@ const postApi=(endPoint,obj,cb)=>{
       <div className="App-header">
         <div style={{...textBoxBorderOne}}>
           <div style={{...textBoxBorderTwo}}>
-            <textarea className='textBox' ref={textBox} style={{...textBoxStyle}} disabled={greyOut} onKeyPress={keyPushed}>
+            <textarea className='textBox' ref={textBox} style={{...textBoxStyle}} disabled={greyOut} onKeyPress={keyPushed} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
             RAW YOUTUBE PLAYLIST URL HERE
             </textarea>
           </div>
