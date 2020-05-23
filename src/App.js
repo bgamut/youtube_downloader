@@ -6,7 +6,7 @@ import stringifyObject from 'stringify-object'
 import { NONAME } from 'dns';
 const clearModule = require('clear-module');
 const withQuery = require('with-query').default;
-var child_process=require('child_process')
+//var child_process=require('child_process')
 
 function App(props) {
 
@@ -401,7 +401,7 @@ const postApi=(endPoint,obj,cb)=>{
               setPercent(json.percentage)
               if(json.percentage>=100){
                 percentageText.current.innerHTML=json.console
-                if(percentage>=100){
+                if(json.console=='complete'){
                   percentageText.current.innerHTML="DOWNLOAD"
                   setGreyOut(false)
                   // var obj={}
@@ -429,8 +429,16 @@ const postApi=(endPoint,obj,cb)=>{
   useEffect(()=>{
       console.log('started')
       //console.log(textBox)
+      
       textBox.current.focus()
       textBox.current.selectionEnd=29
+      // var clipboard = child_process.spawnSync("pbpaste", [], { encoding : 'utf8' });
+      // textBox.current.value=clipboard
+      // require('child_process').exec('pbpaste')
+      // var ncp=require("copy-paste")
+      // ncp.paste(function(){
+      //   console.log('pasted clipboard')
+      // })
      
       handshake()
       observingState()

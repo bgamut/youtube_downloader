@@ -1,5 +1,5 @@
-const { app, BrowserWindow,Tray,dialog } = require('electron')
-
+const { app, BrowserWindow,Tray,dialog,clipboard } = require('electron')
+//const robot=require('robotjs')
 const path = require('path')
 const fs=require('fs')
 const isDev=false
@@ -97,5 +97,9 @@ var sharedInfo=JSON.parse(fs.readFileSync(path.join(__dirname,"/src/sharedInfo.j
   win.on('quit',()=>{
     tray.webContents.clearHistory()
   })
+  setTimeout(() => {
+  //  robot.keyTap('v', process.platform==='darwin' ? 'command' : 'control')
+  clipboard.readText()
+  }, 150)
 }
 app.on('ready', createWindow)

@@ -665,6 +665,11 @@
             }
             else if (i==endGameNum-1){
                 trim_silence_one(list,i)
+                var sharedInfo=JSON.parse(fs.readFileSync(path.join(__dirname,"../sharedInfo.json")))
+                  sharedInfo.console='complete'
+                  fs.writeFile(path.join(__dirname,"../sharedInfo.json"),JSON.stringify(sharedInfo,null,4),function(){
+                    console.log('complete')
+                  })
             }
             // else{
             //   console.log("I think we're done")
