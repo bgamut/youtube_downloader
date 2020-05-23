@@ -47,7 +47,7 @@ function App(props) {
   var progressBarStyleTwo={
     //flex:1,
     height:26,
-    width:'calc(100% + 12px)',
+    width:'calc(100% + 6px)',
     //width:'calc(100% + 4 px)',
     backgroundColor:'rgb(234,179,65)',
     flex:1,
